@@ -1,5 +1,7 @@
-package org;
+package org.config;
 
+import org.HelloService;
+import org.HelloServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
