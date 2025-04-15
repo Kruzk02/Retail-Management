@@ -1,5 +1,6 @@
 package org.config;
 
+import org.setup.SchemaInitializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,5 +32,9 @@ public class DatabaseConfig {
 
     @Bean public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
+    }
+
+    @Bean public SchemaInitializer schemaInitializer(DataSource dataSource) {
+        return new SchemaInitializer(dataSource);
     }
 }
