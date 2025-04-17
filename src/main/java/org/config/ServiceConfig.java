@@ -1,14 +1,16 @@
 package org.config;
 
-import org.HelloService;
-import org.HelloServiceImpl;
+import org.dao.UserDao;
+import org.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 @Configuration
 public class ServiceConfig {
 
-    @Bean public HelloService helloService() {
-        return new HelloServiceImpl();
+    @Bean public UserDetailsService userDetailsService(UserDao userDao) {
+        return new CustomUserDetailsService(userDao);
     }
+
 }
