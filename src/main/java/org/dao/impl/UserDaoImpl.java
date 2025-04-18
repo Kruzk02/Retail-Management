@@ -8,9 +8,17 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Objects;
 
 @AllArgsConstructor
 public class UserDaoImpl implements UserDao {
@@ -26,6 +34,33 @@ public class UserDaoImpl implements UserDao {
             throw new DataNotFoundException("User not found with a username: " + username);
         } catch (DataAccessException e) {
             throw new RuntimeException(e.getMessage());
+        }
+    }
+
+
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+    @Override
+    public User register(User user) {
+        try {
+            String sql = "INSERT INTO users(username, email, password) VALUES(?, ? ,?)";
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            int rowAffected = jdbcTemplate.update(conn -> {
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, user.getUsername());
+                ps.setString(2, user.getEmail());
+                ps.setString(3, user.getPassword());
+                return ps;
+            }, keyHolder);
+
+            if (rowAffected > 0) {
+                user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+                return user;
+            } else {
+                throw new IllegalStateException("Failed to insert user into database");
+            }
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Database error during user registration", e);
         }
     }
 }
