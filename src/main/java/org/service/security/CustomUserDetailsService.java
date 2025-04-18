@@ -1,4 +1,4 @@
-package org.service;
+package org.service.security;
 
 import lombok.AllArgsConstructor;
 import org.dao.UserDao;

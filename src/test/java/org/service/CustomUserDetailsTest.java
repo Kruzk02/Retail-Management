@@ -2,6 +2,7 @@ package org.service;
 
 import org.junit.jupiter.api.Test;
 import org.model.User;
+import org.service.security.CustomUserDetails;
 
 import static org.junit.jupiter.api.Assertions.*;
 
