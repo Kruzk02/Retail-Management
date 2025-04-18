@@ -9,8 +9,4 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 @Configuration
 public class ServiceConfig {
 
-    @Bean public UserDetailsService userDetailsService(UserDao userDao) {
-        return new CustomUserDetailsService(userDao);
-    }
-
 }

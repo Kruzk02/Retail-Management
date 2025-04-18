@@ -23,14 +23,6 @@ public class Main {
         context.register(AppConfig.class);
         context.refresh();
 
-//        var template = context.getBean(JdbcTemplate.class);
-//        Integer result = template.queryForObject("SELECT 1", Integer.class);
-//        if (result != null && result > 0) {
-//            System.out.println("Database is up");
-//        } else {
-//            System.out.println("Database is down");
-//        }
-
         AuthenticationManager authenticationManager = context.getBean(AuthenticationManager.class);
 
         try {

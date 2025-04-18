@@ -1,6 +1,8 @@
 package org.config;
 
 
+import org.dao.UserDao;
+import org.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,12 +40,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.withUsername("bean")
-                        .password(passwordEncoder().encode("1234"))
-                        .roles("USER")
-                        .build();
-
-        return new InMemoryUserDetailsManager(user);
+    public UserDetailsService userDetailsService(UserDao userDao) {
+        return new CustomUserDetailsService(userDao);
     }
 }
