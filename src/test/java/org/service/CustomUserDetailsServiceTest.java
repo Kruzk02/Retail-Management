@@ -27,7 +27,7 @@ class CustomUserDetailsServiceTest {
     public void testLoadUserByUsername_UserExists() {
         User user = User.builder().username("testuser").password("password").build();
 
-        when(userDao.findByUsername("testuser")).thenReturn(user);
+        when(userDao.findPasswordByUsername("testuser")).thenReturn(user);
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername("testuser");
 
@@ -38,7 +38,7 @@ class CustomUserDetailsServiceTest {
 
     @Test
     public void testLoadUserByUsername_UserNotFound() {
-        when(userDao.findByUsername("nonexistent")).thenReturn(null);
+        when(userDao.findPasswordByUsername("nonexistent")).thenReturn(null);
 
         assertThrows(UsernameNotFoundException.class, () -> {
             customUserDetailsService.loadUserByUsername("nonexistent");
