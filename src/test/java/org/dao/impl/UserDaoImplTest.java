@@ -32,7 +32,31 @@ class UserDaoImplTest {
     }
 
     @Test
-    void testFindByUsername_success() {
+    void testIsUsernameOrEmailExists_ReturnTrue() {
+        String username = "testuser";
+        String email = "test@gmail.com";
+
+        when(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(username),eq(email))).thenReturn(true);
+
+        Boolean result = userDao.isUsernameOrEmailExists(username, email);
+        assertTrue(result);
+    }
+
+    @Test
+    void testIsUsernameOrEmailExists_ReturnsFalse() {
+        String username = "testuser";
+        String email = "test@gmail.com";
+
+        when(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(username), eq(email))).thenReturn(false);
+
+
+        Boolean result = userDao.isUsernameOrEmailExists(username, email);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void testFindPasswordByUsername_success() {
         String username = "test";
         User expectedUser = User.builder()
                 .id(1L)
@@ -48,7 +72,7 @@ class UserDaoImplTest {
                 eq(username)
         )).thenReturn(expectedUser);
 
-        User result = userDao.findByUsername(username);
+        User result = userDao.findPasswordByUsername(username);
 
         assertNotNull(result);
         assertEquals(expectedUser, result);
@@ -56,7 +80,7 @@ class UserDaoImplTest {
     }
 
     @Test
-    void testFindByUsername_notFound() {
+    void testFindPasswordByUsername_notFound() {
         String username = "test";
 
         when(jdbcTemplate.queryForObject(
@@ -65,7 +89,7 @@ class UserDaoImplTest {
                 eq(username)
         )).thenThrow(new EmptyResultDataAccessException(1));
 
-        Exception exception = assertThrows(DataNotFoundException.class, () -> userDao.findByUsername(username));
+        Exception exception = assertThrows(DataNotFoundException.class, () -> userDao.findPasswordByUsername(username));
         assertTrue(exception.getMessage().contains("User not found"));
     }
 

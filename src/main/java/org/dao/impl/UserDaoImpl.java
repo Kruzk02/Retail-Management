@@ -26,9 +26,15 @@ public class UserDaoImpl implements UserDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public User findByUsername(String username) {
+    public Boolean isUsernameOrEmailExists(String username, String email) {
+        String sql = "SELECT EXISTS(SELECT 1 FROM users WHERE username = ? OR email = ?) AS user_exists";
+        return jdbcTemplate.queryForObject(sql, Boolean.class, username, email);
+    }
+
+    @Override
+    public User findPasswordByUsername(String username) {
         try {
-            String sql = "SELECT id, email, password, created_at FROM users WHERE username = ?";
+            String sql = "SELECT password, created_at FROM users WHERE username = ?";
             return jdbcTemplate.queryForObject(sql, new UserRowMapper(false, true, true), username);
         } catch (EmptyResultDataAccessException e) {
             throw new DataNotFoundException("User not found with a username: " + username);
@@ -36,7 +42,6 @@ public class UserDaoImpl implements UserDao {
             throw new RuntimeException(e.getMessage());
         }
     }
-
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     @Override
