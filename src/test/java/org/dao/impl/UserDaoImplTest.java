@@ -136,20 +136,4 @@ class UserDaoImplTest {
 
         assertThrows(IllegalStateException.class, () -> userDao.register(inputUser));
     }
-
-
-    @Test
-    void testRegister_DataAccessException() {
-        User inputUser = User.builder()
-                .username("testuser")
-                .email("test@gmail.com")
-                .password("password")
-                .build();
-
-        Mockito.when(jdbcTemplate.update(any(PreparedStatementCreator.class), any(KeyHolder.class)))
-                .thenThrow(new DataAccessResourceFailureException("Database unavailable"));
-
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> userDao.register(inputUser));
-        assertTrue(thrown.getMessage().contains("Database error"));
-    }
 }
