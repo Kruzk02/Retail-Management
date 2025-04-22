@@ -1,12 +1,17 @@
 package org;
 
 import org.config.AppConfig;
+import org.dto.LoginRequest;
+import org.dto.RegisterRequest;
 import org.env.DotenvPropertySource;
+import org.model.User;
+import org.service.UserService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class Main {
     public static void main(String[] args) {
@@ -23,16 +28,10 @@ public class Main {
         context.register(AppConfig.class);
         context.refresh();
 
-        AuthenticationManager authenticationManager = context.getBean(AuthenticationManager.class);
-
-        try {
-            Authentication authentication = new UsernamePasswordAuthenticationToken("bean",1234);
-            Authentication authenticated = authenticationManager.authenticate(authentication);
-
-            System.out.println("Authenticated: " + authenticated.isAuthenticated());
-            System.out.println("Authorities: " + authenticated.getAuthorities());
-        } catch (Exception e) {
-            System.out.println("Authentication failed: " + e.getMessage());
-        }
+        UserService userService = context.getBean(UserService.class);
+//        User user = userService.register(new RegisterRequest("username", "email@gmail.com", "password"));
+//        System.out.println(user);
+        Authentication authentication = userService.login(new LoginRequest("username", "password"));
+        System.out.println(authentication.isAuthenticated());
     }
 }
