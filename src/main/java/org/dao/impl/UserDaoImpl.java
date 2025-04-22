@@ -34,8 +34,8 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User findPasswordByUsername(String username) {
         try {
-            String sql = "SELECT password, created_at FROM users WHERE username = ?";
-            return jdbcTemplate.queryForObject(sql, new UserRowMapper(false, true, true), username);
+            String sql = "SELECT id, password, created_at FROM users WHERE username = ?";
+            return jdbcTemplate.queryForObject(sql, new UserRowMapper(false, false, true), username);
         } catch (EmptyResultDataAccessException e) {
             throw new DataNotFoundException("User not found with a username: " + username);
         } catch (DataAccessException e) {
@@ -46,26 +46,22 @@ public class UserDaoImpl implements UserDao {
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     @Override
     public User register(User user) {
-        try {
-            String sql = "INSERT INTO users(username, email, password) VALUES(?, ? ,?)";
-            KeyHolder keyHolder = new GeneratedKeyHolder();
+        String sql = "INSERT INTO users(username, email, password) VALUES(?, ? ,?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            int rowAffected = jdbcTemplate.update(conn -> {
-                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                ps.setString(1, user.getUsername());
-                ps.setString(2, user.getEmail());
-                ps.setString(3, user.getPassword());
-                return ps;
-            }, keyHolder);
+        int rowAffected = jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getEmail());
+            ps.setString(3, user.getPassword());
+            return ps;
+        }, keyHolder);
 
-            if (rowAffected > 0) {
-                user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-                return user;
-            } else {
-                throw new IllegalStateException("Failed to insert user into database");
-            }
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Database error during user registration", e);
+        if (rowAffected > 0) {
+            user.setId(((Number) Objects.requireNonNull(keyHolder.getKeys()).get("id")).longValue());
+            return user;
+        } else {
+            throw new IllegalStateException("Failed to insert user into database");
         }
     }
 }
@@ -79,12 +75,24 @@ class UserRowMapper implements RowMapper<User> {
 
     @Override
     public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return User.builder()
+        User user = User.builder()
                 .id(rs.getLong("id"))
-                .username(rs.getString("username"))
-                .email(rs.getString("email"))
-                .password(rs.getString("password"))
-                .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                 .build();
+
+        if (includeUsername) {
+            user.setUsername(rs.getString("username"));
+        }
+
+        if (includeEmail) {
+            user.setEmail(rs.getString("email"));
+        }
+
+        if (includePassword) {
+            user.setPassword(rs.getString("password"));
+        }
+
+        user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+
+        return user;
     }
 }
