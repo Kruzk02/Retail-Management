@@ -7,6 +7,10 @@ public record RegisterRequest(String username, String email, String password) {
             throw new IllegalArgumentException("Username cannot be blank");
         }
 
+        if (username.length() < 8) {
+            throw new IllegalArgumentException("Username cannot be less than 8 character");
+        }
+
         if (email == null || !email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
             throw new IllegalArgumentException("Invalid email format");
         }
