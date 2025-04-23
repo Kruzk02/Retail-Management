@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS privileges(
+    id SERIAL PRIMARY KEY,
+    name varchar(255) NOT NULL UNIQUE
+);
