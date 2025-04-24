@@ -1,5 +1,7 @@
 package org.service.security;
 
+import org.model.Privilege;
+import org.model.Role;
 import org.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,7 +15,7 @@ public record CustomUserDetails(User user) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return getGrantedAuthorities(getPrivileges(user.getRoles()));
     }
 
     @Override
@@ -26,14 +28,17 @@ public record CustomUserDetails(User user) implements UserDetails {
         return user.getUsername();
     }
 
-    //Todo: after success done authentication switch to authorization
+    private List<String> getPrivileges(Collection<Role> roles) {
+        List<String> privileges = new ArrayList<>();
+        List<Privilege> collections = new ArrayList<>();
 
-    private Collection<? extends GrantedAuthority> getAuthorities(Collection<?> roles) {
-        return null;
-    }
+        roles.forEach(role -> {
+            privileges.add(role.getName());
+            collections.addAll(role.getPrivileges());
+        });
 
-    private List<String> getPrivileges(Collection<?> roles) {
-        return null;
+        collections.forEach(privilege -> privileges.add(privilege.getName()));
+        return privileges;
     }
 
     private Collection<? extends GrantedAuthority> getGrantedAuthorities(List<String> privileges) {
