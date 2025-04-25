@@ -3,6 +3,8 @@ package org.dao.impl;
 import lombok.AllArgsConstructor;
 import org.dao.UserDao;
 import org.exception.DataNotFoundException;
+import org.model.Privilege;
+import org.model.Role;
 import org.model.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,7 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Objects;
+import java.util.*;
 
 @AllArgsConstructor
 public class UserDaoImpl implements UserDao {
@@ -32,10 +34,29 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User findPasswordByUsername(String username) {
+    public User login(String username) {
         try {
-            String sql = "SELECT id, password, created_at FROM users WHERE username = ?";
-            return jdbcTemplate.queryForObject(sql, new UserRowMapper(false, false, true), username);
+            String sql = "SELECT " +
+                    "u.id AS user_id, " +
+                    "u.username, " +
+                    "u.password, " +
+                    "u.created_at, " +
+                        "(SELECT STRING_AGG(DISTINCT r.name, ', ') " +
+                            "FROM users_roles ur " +
+                            "JOIN roles r ON ur.role_id = r.id " +
+                            "WHERE ur.user_id = u.id " +
+                        ") AS roles, " +
+                        "(SELECT STRING_AGG(DISTINCT p.name, ',' ) " +
+                            "FROM users_roles ur " +
+                            "JOIN roles r ON ur.role_id = r.id " +
+                            "JOIN roles_privileges rp ON r.id = rp.role_id " +
+                            "JOIN privileges p ON rp.privilege_id = p.id " +
+                            "WHERE ur.user_id = u.id " +
+                        ") AS privileges " +
+                    "FROM users u " +
+                    "WHERE u.username = ? ";
+            return jdbcTemplate.queryForObject(sql, new UserRowMapper(true, false, true, true, true), username);
+
         } catch (EmptyResultDataAccessException e) {
             throw new DataNotFoundException("User not found with a username: " + username);
         } catch (DataAccessException e) {
@@ -59,6 +80,12 @@ public class UserDaoImpl implements UserDao {
 
         if (rowAffected > 0) {
             user.setId(((Number) Objects.requireNonNull(keyHolder.getKeys()).get("id")).longValue());
+
+            String userRoleSql = "INSERT INTO users_roles(user_id, role_id) VALUES(?, ?)";
+            jdbcTemplate.update(userRoleSql, ps -> {
+                ps.setLong(1, user.getId());
+                ps.setInt(2, 2);
+            });
             return user;
         } else {
             throw new IllegalStateException("Failed to insert user into database");
@@ -72,11 +99,14 @@ class UserRowMapper implements RowMapper<User> {
     private boolean includeUsername;
     private boolean includeEmail;
     private boolean includePassword;
+    private boolean includeRole;
+    private boolean includePrivilege;
 
     @Override
     public User mapRow(ResultSet rs, int rowNum) throws SQLException {
         User user = User.builder()
-                .id(rs.getLong("id"))
+                .id(rs.getLong("user_id"))
+                .roles(new ArrayList<>())
                 .build();
 
         if (includeUsername) {
@@ -91,8 +121,26 @@ class UserRowMapper implements RowMapper<User> {
             user.setPassword(rs.getString("password"));
         }
 
-        user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+        if (includeRole) {
+            Role role = Role.builder()
+                    .name(rs.getString("roles"))
+                    .privileges(new ArrayList<>())
+                    .build();
+            user.getRoles().add(role);
 
+            if (includePrivilege) {
+                Privilege privilege = Privilege.builder()
+                        .name(rs.getString("privileges"))
+                        .build();
+                role.getPrivileges().add(privilege);
+                System.out.println(privilege);
+            }
+            System.out.println(role);
+
+        }
+
+        user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+        System.out.println(user);
         return user;
     }
 }

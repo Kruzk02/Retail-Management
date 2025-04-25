@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.model.User;
-import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -56,7 +55,7 @@ class UserDaoImplTest {
     }
 
     @Test
-    void testFindPasswordByUsername_success() {
+    void testLogin_success() {
         String username = "test";
         User expectedUser = User.builder()
                 .id(1L)
@@ -72,7 +71,7 @@ class UserDaoImplTest {
                 eq(username)
         )).thenReturn(expectedUser);
 
-        User result = userDao.findPasswordByUsername(username);
+        User result = userDao.login(username);
 
         assertNotNull(result);
         assertEquals(expectedUser, result);
@@ -80,7 +79,7 @@ class UserDaoImplTest {
     }
 
     @Test
-    void testFindPasswordByUsername_notFound() {
+    void testLogin_notFound() {
         String username = "test";
 
         when(jdbcTemplate.queryForObject(
@@ -89,7 +88,7 @@ class UserDaoImplTest {
                 eq(username)
         )).thenThrow(new EmptyResultDataAccessException(1));
 
-        Exception exception = assertThrows(DataNotFoundException.class, () -> userDao.findPasswordByUsername(username));
+        Exception exception = assertThrows(DataNotFoundException.class, () -> userDao.login(username));
         assertTrue(exception.getMessage().contains("User not found"));
     }
 
