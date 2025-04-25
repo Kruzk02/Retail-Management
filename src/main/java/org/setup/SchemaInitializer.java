@@ -18,6 +18,7 @@ public class SchemaInitializer implements InitializingBean {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("sql/user.sql"));
         populator.addScript(new ClassPathResource("sql/role.sql"));
+        populator.addScript(new ClassPathResource("sql/user_role.sql"));
         populator.addScript(new ClassPathResource("sql/privilege.sql"));
         populator.addScript(new ClassPathResource("sql/role_privilege.sql"));
         populator.addScript(new ClassPathResource("sql/insert_value.sql"));
