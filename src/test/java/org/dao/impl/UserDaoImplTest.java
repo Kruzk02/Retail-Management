@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.model.Privilege;
+import org.model.Role;
 import org.model.User;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,7 +15,9 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,12 +60,19 @@ class UserDaoImplTest {
 
     @Test
     void testLogin_success() {
+        Role role = Role.builder()
+            .id(1L)
+            .name("ROLE_ADMIN")
+            .privileges(Collections.emptyList())
+        .build();
+
         String username = "test";
         User expectedUser = User.builder()
                 .id(1L)
                 .username("test")
                 .email("test@example.com")
                 .password("hashed_password")
+                .roles(List.of(role))
                 .createdAt(java.time.LocalDateTime.now())
                 .build();
 
@@ -75,6 +86,7 @@ class UserDaoImplTest {
 
         assertNotNull(result);
         assertEquals(expectedUser, result);
+        assertEquals(List.of(role),result.getRoles());
         verify(jdbcTemplate).queryForObject(anyString(), any(UserRowMapper.class), eq(username));
     }
 

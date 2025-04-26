@@ -129,18 +129,19 @@ class UserRowMapper implements RowMapper<User> {
             user.getRoles().add(role);
 
             if (includePrivilege) {
-                Privilege privilege = Privilege.builder()
-                        .name(rs.getString("privileges"))
-                        .build();
-                role.getPrivileges().add(privilege);
-                System.out.println(privilege);
-            }
-            System.out.println(role);
+                String privilegeName = rs.getString("privileges");
+                String[] arr = privilegeName.split("[,\\s]");
 
+                for (String name : arr) {
+                    Privilege privilege = Privilege.builder()
+                            .name(name)
+                            .build();
+                    role.getPrivileges().add(privilege);
+                }
+            }
         }
 
         user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-        System.out.println(user);
         return user;
     }
 }

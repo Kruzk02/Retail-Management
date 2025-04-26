@@ -8,10 +8,7 @@ import org.model.User;
 import org.service.UserService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 public class Main {
     public static void main(String[] args) {
@@ -29,9 +26,10 @@ public class Main {
         context.refresh();
 
         UserService userService = context.getBean(UserService.class);
-//        User user = userService.register(new RegisterRequest("username", "email@gmail.com", "password"));
-//        System.out.println(user);
+        User user = userService.register(new RegisterRequest("username", "email@gmail.com", "password"));
+        System.out.println(user);
         Authentication authentication = userService.login(new LoginRequest("username", "password"));
         System.out.println(authentication.isAuthenticated());
+        System.out.println(authentication.getAuthorities());
     }
 }
