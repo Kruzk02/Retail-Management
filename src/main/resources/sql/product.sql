@@ -4,6 +4,5 @@ CREATE TABLE IF NOT EXISTS products(
     description TEXT,
     price DECIMAL(10, 2) NOT NULL,
     stock_quantity INT NOT NULL,
-    category_id INT REFERENCES categories(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
