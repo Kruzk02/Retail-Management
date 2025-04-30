@@ -19,7 +19,7 @@ public class Product {
     private String name;
     private String description;
     private BigDecimal price;
-    private int quantity;
+    private Integer quantity;
     private Collection<Category> categories;
     private Timestamp created_at;
 
