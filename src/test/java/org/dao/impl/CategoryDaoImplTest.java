@@ -37,9 +37,9 @@ class CategoryDaoImplTest {
     void testIsCategoryExists_returnTrue() {
         String name = "Books";
 
-        when(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(name))).thenReturn(true);
+        when(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(1L),  eq(name))).thenReturn(true);
 
-        Boolean result = categoryDao.isCategoryExists(name);
+        Boolean result = categoryDao.isCategoryExists(1L,name);
         assertTrue(result);
     }
 
@@ -47,9 +47,9 @@ class CategoryDaoImplTest {
     void testIsCategoryExists_returnFalse() {
         String name = "Books";
 
-        when(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(name))).thenReturn(false );
+        when(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(0L), eq(name))).thenReturn(false );
 
-        Boolean result = categoryDao.isCategoryExists(name);
+        Boolean result = categoryDao.isCategoryExists(0L, name);
         assertFalse(result);
     }
 

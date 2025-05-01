@@ -20,9 +20,9 @@ public class CategoryDaoImpl implements CategoryDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Boolean isCategoryExists(String name) {
-        String sql = "SELECT EXISTS(SELECT 1 FROM categories WHERE name = ?)";
-        return jdbcTemplate.queryForObject(sql, Boolean.class, name);
+    public Boolean isCategoryExists(Long id, String name) {
+        String sql = "SELECT EXISTS(SELECT 1 FROM categories WHERE id = ? OR name = ?)";
+        return jdbcTemplate.queryForObject(sql, Boolean.class, id, name);
     }
 
     @Override
