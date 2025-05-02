@@ -10,13 +10,11 @@ import org.model.Product;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +35,31 @@ class ProductDaoImplTest {
         productDao = new ProductDaoImpl(jdbcTemplate);
 
         product = Product.builder()
+                .id(1L)
                 .name("Test Product")
                 .description("Test Description")
                 .price(BigDecimal.valueOf(100))
                 .quantity(10)
                 .categories(List.of(Category.builder().id(1L).build()))
                 .build();
+    }
+
+    @Test
+    void testIsExists_shouldSuccess() {
+
+        when(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(1L))).thenReturn(true);
+
+        Boolean result = productDao.isProductExists(1L);
+        assertTrue(result);
+    }
+
+    @Test
+    void testIsExists_shouldNotFound() {
+
+        when(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(0L))).thenReturn(false);
+
+        Boolean result = productDao.isProductExists(0L);
+        assertFalse(result);
     }
 
     @Test

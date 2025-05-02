@@ -25,6 +25,12 @@ public class ProductDaoImpl implements ProductDao {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Override
+    public Boolean isProductExists(Long id) {
+        String sql = "SELECT EXISTS(SELECT 1 FROM products WHERE id = ?)";
+        return jdbcTemplate.queryForObject(sql, Boolean.class, id);
+    }
+
     @Transactional(
             propagation = Propagation.REQUIRED,
             rollbackFor = Exception.class,
