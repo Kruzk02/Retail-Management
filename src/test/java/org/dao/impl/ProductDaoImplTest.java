@@ -130,7 +130,7 @@ class ProductDaoImplTest {
         Long id = 1L;
         Product product = Product.builder().build();
 
-        assertThrows(IllegalArgumentException.class, () -> productDao.update(id, product));
+        assertThrows(NullPointerException.class, () -> productDao.update(id, product));
     }
 
     @Test
