@@ -11,6 +11,7 @@ import org.service.ProductService;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -46,11 +47,14 @@ public class ProductServiceImpl implements ProductService {
             throw new DataNotFoundException("Product not found with id: " + id);
         }
 
+        List<Category> categories = categoryDao.findCategoryByProductId(id);
+
         Product product = productDao.findById(id);
         product.setName(request.name());
         product.setDescription(request.description());
         product.setPrice(request.price());
         product.setQuantity(request.quantity());
+        product.setCategories(categories);
 
         return productDao.update(id, product);
     }
