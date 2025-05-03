@@ -11,6 +11,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 import java.util.Objects;
 
 @AllArgsConstructor
@@ -42,6 +43,25 @@ public class CategoryDaoImpl implements CategoryDao {
         } else {
             throw new IllegalStateException("Failed to insert category into database");
         }
+    }
+
+    @Override
+    public List<Category> findCategoryByProductId(Long productId) {
+        String sql = "SELECT c.id, c.name FROM categories c " +
+                "JOIN products_categories pc ON c.id = pc.category_id " +
+                "WHERE pc.product_id = ?";
+
+        List<Category> categories = jdbcTemplate.query(sql, (rs, rowNum) ->
+            Category.builder()
+                    .id(rs.getLong("id"))
+                    .name(rs.getString("name"))
+                    .build()
+        , productId);
+
+        if (categories.isEmpty()) {
+            throw new DataNotFoundException("Product not found with id: " + productId);
+        }
+        return categories;
     }
 
     @Override
