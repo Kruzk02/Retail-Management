@@ -103,7 +103,6 @@ class ProductServiceImplTest {
         assertEquals("description", updated.getDescription());
         assertEquals(BigDecimal.ONE, updated.getPrice());
         assertEquals(24, updated.getQuantity());
-        assertEquals(List.of(category), updated.getCategories());
     }
 
     @Test

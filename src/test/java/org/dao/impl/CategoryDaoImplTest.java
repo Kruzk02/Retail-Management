@@ -15,6 +15,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -90,6 +91,27 @@ class CategoryDaoImplTest {
         Mockito.when(jdbcTemplate.update(any(PreparedStatementCreator.class), any(KeyHolder.class))).thenReturn(0);
 
         assertThrows(IllegalStateException.class, () -> categoryDao.save(input));
+    }
+
+    @Test
+    void findCategoryByProductId_success() {
+        List<Category> expect = List.of(Category.builder().id(1L).name("name").build());
+
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class), eq(1L))).thenReturn(expect);
+
+        List<Category> categories = categoryDao.findCategoryByProductId(1L);
+
+        assertNotNull(categories);
+        assertEquals(expect, categories);
+        verify(jdbcTemplate).query(anyString(), any(RowMapper.class), eq(1L));
+    }
+
+    @Test
+    void findCategoryByProductId_notFound() {
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class), eq(1L))).thenThrow(new DataNotFoundException("Product not found with id: " + 1L));
+
+        Exception exception = assertThrows(DataNotFoundException.class, () -> categoryDao.findCategoryByProductId(1L));
+        assertTrue(exception.getMessage().contains("Product not found with id"));
     }
 
     @Test

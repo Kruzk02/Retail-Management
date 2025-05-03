@@ -15,9 +15,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Repository
@@ -84,6 +83,39 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Transactional
+    private void updateProductCategories(Product product) {
+        String sql = "SELECT c.id, c.name FROM categories c " +
+                "JOIN products_categories pc ON c.id = pc.category_id " +
+                "WHERE pc.product_id = ?";
+
+        List<Category> existingCategories = jdbcTemplate.query(sql, (rs, rowNum) ->
+                        Category.builder()
+                                .id(rs.getLong("id"))
+                                .name(rs.getString("name"))
+                                .build()
+                , product.getId());
+
+        Set<Long> existingCategoryIds = existingCategories.stream().map(Category::getId).collect(Collectors.toSet());
+        Set<Long> newCategoryIds = product.getCategories().stream().map(Category::getId).collect(Collectors.toSet());
+
+        Set<Long> toAdd = new HashSet<>(newCategoryIds);
+        toAdd.removeAll(existingCategoryIds);
+
+        Set<Long> toRemove = new HashSet<>(existingCategoryIds);
+        toRemove.removeAll(newCategoryIds);
+
+        for (Long categoryId : toRemove) {
+            jdbcTemplate.update("DELETE FROM products_categories WHERE product_id = ? AND category_id = ?",
+                    product.getId(), categoryId);
+        }
+
+        for (Long categoryId : toAdd) {
+            jdbcTemplate.update("INSERT INTO products_categories (product_id, category_id) VALUES (?, ?)",
+                    product.getId(), categoryId);
+        }
+    }
+
+    @Transactional
     @Override
     public Product update(Long id, Product product) {
         StringBuilder sb = new StringBuilder("UPDATE products SET ");
@@ -109,6 +141,10 @@ public class ProductDaoImpl implements ProductDao {
             params.add(product.getQuantity());
         }
 
+        if (!product.getCategories().isEmpty()) {
+            updateProductCategories(product);
+        }
+
         if (params.isEmpty()) {
             throw new IllegalArgumentException("No field to update");
         }
@@ -123,7 +159,7 @@ public class ProductDaoImpl implements ProductDao {
         String sql = sb.toString();
         int rowAffected = jdbcTemplate.update(sql, params.toArray());
 
-        return product;
+        return rowAffected > 0 ? product : null;
     }
 
     @Transactional
