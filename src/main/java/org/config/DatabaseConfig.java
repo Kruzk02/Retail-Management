@@ -1,12 +1,12 @@
 package org.config;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.setup.SchemaInitializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
 
@@ -22,11 +22,21 @@ public class DatabaseConfig {
     private String password;
 
     @Bean public DataSource dataSource() {
-        var dataSource = new DriverManagerDataSource();
+        var dataSource = new HikariDataSource();
+
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl(url);
+        dataSource.setJdbcUrl(url);
         dataSource.setUsername(username);
         dataSource.setPassword(password);
+
+        dataSource.setMaximumPoolSize(12);
+        dataSource.setMinimumIdle(4);
+
+        dataSource.setIdleTimeout(30000);
+        dataSource.setMaxLifetime(600000);
+        dataSource.setConnectionTimeout(30000);
+
+        dataSource.setConnectionTestQuery("SELECT 1");
         return dataSource;
     }
 
