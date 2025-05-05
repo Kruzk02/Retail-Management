@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
@@ -14,13 +12,11 @@ import java.util.Collection;
 @AllArgsConstructor
 @Data
 @Builder
-public class Product {
+public class Inventory {
 
     private Long id;
-    private String name;
-    private String description;
-    private BigDecimal price;
-    private Collection<Category> categories;
-    private Timestamp created_at;
-
+    private Collection<Product> products;
+    private Collection<Location> locations;
+    private Integer quantity;
+    private LocalDateTime updatedAt;
 }
