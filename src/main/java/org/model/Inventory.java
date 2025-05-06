@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,8 +14,8 @@ import java.util.Collection;
 public class Inventory {
 
     private Long id;
-    private Collection<Product> products;
-    private Collection<Location> locations;
+    private Product product;
+    private Location location;
     private Integer quantity;
     private LocalDateTime updatedAt;
 }
