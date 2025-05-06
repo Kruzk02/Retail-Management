@@ -45,12 +45,11 @@ class ProductServiceImplTest {
                 .name("name")
                 .description("description")
                 .price(BigDecimal.ONE)
-                .quantity(24)
                 .categories(List.of(category))
                 .created_at(Timestamp.from(Instant.now()))
                 .build();
 
-        productRequest = new ProductRequest("name", "description", BigDecimal.ONE, 24, List.of("name"));
+        productRequest = new ProductRequest("name", "description", BigDecimal.ONE, List.of("name"));
     }
 
     @Test
@@ -63,7 +62,6 @@ class ProductServiceImplTest {
         assertEquals("name", saved.getName());
         assertEquals("description", saved.getDescription());
         assertEquals(BigDecimal.ONE, saved.getPrice());
-        assertEquals(24, saved.getQuantity());
         assertEquals(List.of(category), saved.getCategories());
     }
 
@@ -102,7 +100,6 @@ class ProductServiceImplTest {
         assertEquals("name", updated.getName());
         assertEquals("description", updated.getDescription());
         assertEquals(BigDecimal.ONE, updated.getPrice());
-        assertEquals(24, updated.getQuantity());
     }
 
     @Test

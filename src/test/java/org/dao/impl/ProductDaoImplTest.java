@@ -39,7 +39,6 @@ class ProductDaoImplTest {
                 .name("Test Product")
                 .description("Test Description")
                 .price(BigDecimal.valueOf(100))
-                .quantity(10)
                 .categories(List.of(Category.builder().id(1L).build()))
                 .build();
     }

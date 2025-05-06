@@ -29,7 +29,6 @@ public class ProductServiceImpl implements ProductService {
                 .name(request.name())
                 .description(request.description())
                 .price(request.price())
-                .quantity(request.quantity())
                 .categories(categories)
                 .build();
         return productDao.save(product);
@@ -53,7 +52,6 @@ public class ProductServiceImpl implements ProductService {
         product.setName(request.name());
         product.setDescription(request.description());
         product.setPrice(request.price());
-        product.setQuantity(request.quantity());
         product.setCategories(categories);
 
         return productDao.update(id, product);
