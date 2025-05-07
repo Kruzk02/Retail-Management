@@ -1,14 +1,8 @@
 package org.config;
 
-import org.dao.CategoryDao;
-import org.dao.ProductDao;
-import org.dao.UserDao;
-import org.service.CategoryService;
-import org.service.ProductService;
-import org.service.UserService;
-import org.service.impl.CategoryServiceImpl;
-import org.service.impl.ProductServiceImpl;
-import org.service.impl.UserServiceImpl;
+import org.dao.*;
+import org.service.*;
+import org.service.impl.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,5 +24,15 @@ public class ServiceConfig {
     @Bean
     public ProductService productService(ProductDao productDao, CategoryDao categoryDao) {
         return new ProductServiceImpl(productDao, categoryDao);
+    }
+
+    @Bean
+    public LocationService locationService(LocationDao locationDao) {
+        return new LocationServiceImpl(locationDao);
+    }
+
+    @Bean
+    public InventoryService inventoryService(InventoryDao inventoryDao, ProductDao productDao, LocationDao locationDao) {
+        return new InventoryServiceImpl(inventoryDao, productDao, locationDao);
     }
 }
