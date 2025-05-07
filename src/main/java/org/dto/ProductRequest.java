@@ -7,7 +7,6 @@ public record ProductRequest(
     String name,
     String description,
     BigDecimal price,
-    Integer quantity,
     Collection<String> categories
 ) {
     public ProductRequest {
@@ -22,10 +21,6 @@ public record ProductRequest(
 
         if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Price must not be null or negative.");
-        }
-
-        if (quantity == null || quantity < 0) {
-            throw new IllegalArgumentException("Quantity must not be null or negative.");
         }
 
         if (categories == null || categories.isEmpty()) {

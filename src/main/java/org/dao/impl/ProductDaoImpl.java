@@ -45,7 +45,6 @@ public class ProductDaoImpl implements ProductDao {
             ps.setString(1, product.getName());
             ps.setString(2, product.getDescription());
             ps.setBigDecimal(3, product.getPrice());
-            ps.setInt(4, product.getQuantity());
             return ps;
         }, keyHolder);
 
@@ -74,7 +73,6 @@ public class ProductDaoImpl implements ProductDao {
                         .name(rs.getString("name"))
                         .description(rs.getString("description"))
                         .price(rs.getBigDecimal("price"))
-                        .quantity(rs.getInt("stock_quantity"))
                         .build()
             ,id);
         } catch (EmptyResultDataAccessException e) {
@@ -134,11 +132,6 @@ public class ProductDaoImpl implements ProductDao {
         if (product.getPrice() != null) {
             sb.append("price = ?, ");
             params.add(product.getPrice());
-        }
-
-        if (product.getQuantity() != null) {
-            sb.append("stock_quantity = ?, " );
-            params.add(product.getQuantity());
         }
 
         if (!product.getCategories().isEmpty()) {
