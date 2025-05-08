@@ -7,10 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.model.Category;
 import org.model.Product;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
@@ -94,7 +93,7 @@ class ProductDaoImplTest {
     void testFindById_shouldReturnProduct_whenFound() {
         long id = 1L;
 
-        when(jdbcTemplate.queryForObject(anyString(), any(RowMapper.class), eq(id))).thenReturn(product);
+        when(jdbcTemplate.query(anyString(), any(ResultSetExtractor.class), eq(id))).thenReturn(product);
 
         Product foundProduct = productDao.findById(id);
 
@@ -106,7 +105,7 @@ class ProductDaoImplTest {
     void testFindById_shouldThrowException_whenNotFound() {
         Long id = 1L;
 
-        when(jdbcTemplate.queryForObject(anyString(), any(RowMapper.class), eq(id))).thenThrow(new EmptyResultDataAccessException(1));
+        when(jdbcTemplate.query(anyString(), any(ResultSetExtractor.class), eq(id))).thenThrow(new DataNotFoundException(""));
 
         assertThrows(DataNotFoundException.class, () -> productDao.findById(id));
     }
