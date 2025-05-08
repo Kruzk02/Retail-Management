@@ -15,6 +15,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -46,7 +47,7 @@ class ProductServiceImplTest {
                 .description("description")
                 .price(BigDecimal.ONE)
                 .categories(List.of(category))
-                .created_at(Timestamp.from(Instant.now()))
+                .created_at(LocalDateTime.now())
                 .build();
 
         productRequest = new ProductRequest("name", "description", BigDecimal.ONE, List.of("name"));

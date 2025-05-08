@@ -17,6 +17,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,7 +50,7 @@ class InventoryServiceImplTest {
                 .description("description")
                 .price(BigDecimal.ONE)
                 .categories(List.of())
-                .created_at(Timestamp.from(Instant.now()))
+                .created_at(LocalDateTime.now())
                 .build();
 
         location = Location.builder()
