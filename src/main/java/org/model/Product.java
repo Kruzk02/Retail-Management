@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
@@ -21,6 +20,6 @@ public class Product {
     private String description;
     private BigDecimal price;
     private Collection<Category> categories;
-    private Timestamp created_at;
+    private LocalDateTime created_at;
 
 }
