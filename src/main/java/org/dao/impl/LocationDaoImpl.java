@@ -38,7 +38,7 @@ public class LocationDaoImpl implements LocationDao {
         }, keyHolder);
 
         if (rows > 0) {
-            location.setId((Long) Objects.requireNonNull(keyHolder.getKeys()).get("id"));
+            location.setId(((Number) Objects.requireNonNull(keyHolder.getKeys()).get("id")).longValue());
             return location;
         } else {
             throw new IllegalStateException("Failed to insert locations into database");

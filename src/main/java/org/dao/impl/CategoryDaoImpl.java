@@ -38,7 +38,7 @@ public class CategoryDaoImpl implements CategoryDao {
         }, keyHolder);
 
         if (rowAffected > 0) {
-            category.setId((Long) Objects.requireNonNull(keyHolder.getKeys()).get("id"));
+            category.setId(((Number) Objects.requireNonNull(keyHolder.getKeys()).get("id")).longValue());
             return category;
         } else {
             throw new IllegalStateException("Failed to insert category into database");
