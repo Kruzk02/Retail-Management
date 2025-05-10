@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import org.dao.InventoryDao;
 import org.exception.DataNotFoundException;
 import org.model.Inventory;
+import org.model.Location;
+import org.model.Product;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -52,7 +54,7 @@ public class InventoryDaoImpl implements InventoryDao {
         }, keyHolder);
 
         if (rows > 0) {
-            inventory.setId((Long) Objects.requireNonNull(keyHolder.getKeys()).get("id"));
+            inventory.setId(((Number) Objects.requireNonNull(keyHolder.getKeys()).get("id")).longValue());
             return inventory;
         } else {
             throw new IllegalStateException("Failed to insert inventory to database");
@@ -62,14 +64,46 @@ public class InventoryDaoImpl implements InventoryDao {
     @Override
     public Inventory findById(Long id) {
         try {
-            String sql = "SELECT id, quantity, updated_at FROM inventory WHERE id = ?";
-            return jdbcTemplate.queryForObject(sql, (rs, rowNum) ->
-                Inventory.builder()
-                        .id(rs.getLong("id"))
-                        .quantity(rs.getInt("quantity"))
-                        .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-                        .build()
-            , id);
+            String sql = "SELECT i.id AS inventory_id, i.quantity, i.updated_at, " +
+                    "p.id AS product_id, p.name AS product_name, p.price, p.created_at, " +
+                    "l.id AS location_id, l.name AS location_name " +
+                    "FROM inventory i " +
+                    "JOIN products p ON i.product_id = p.id " +
+                    "JOIN locations l ON i.location_id = l.id " +
+                    "WHERE i.id = ?";
+
+            return jdbcTemplate.query(sql, rs -> {
+                Inventory inventory = null;
+                while (rs.next()) {
+                    Product product = Product.builder()
+                            .id(rs.getLong("product_id"))
+                            .name(rs.getString("product_name"))
+                            .price(rs.getBigDecimal("price"))
+                            .created_at(rs.getTimestamp("created_at").toLocalDateTime())
+                            .build();
+
+                    Location location = Location.builder()
+                            .id(rs.getLong("location_id"))
+                            .name(rs.getString("location_name"))
+                            .build();
+
+                    if (inventory == null) {
+                        inventory = Inventory.builder()
+                                .id(rs.getLong("inventory_id"))
+                                .quantity(rs.getInt("quantity"))
+                                .product(product)
+                                .location(location)
+                                .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
+                                .build();
+                    }
+                }
+
+                if (inventory == null) {
+                    throw new DataNotFoundException("Inventory not found with a id: " + id);
+                }
+
+                return inventory;
+            }, id);
         } catch (EmptyResultDataAccessException e) {
             throw new DataNotFoundException("Inventory not found with a id: " + id);
         }
@@ -104,8 +138,6 @@ public class InventoryDaoImpl implements InventoryDao {
             sb.setLength(sb.length() - 2);
         }
 
-        sb.append("updated_at = ?, ");
-        params.add(Timestamp.from(Instant.now()));
         sb.append(" WHERE id = ?");
         params.add(id);
 
