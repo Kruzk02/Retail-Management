@@ -14,7 +14,7 @@ public class SchemaInitializer implements InitializingBean {
     private final DataSource dataSource;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("sql/user.sql"));
         populator.addScript(new ClassPathResource("sql/role.sql"));
@@ -23,6 +23,7 @@ public class SchemaInitializer implements InitializingBean {
         populator.addScript(new ClassPathResource("sql/role_privilege.sql"));
         populator.addScript(new ClassPathResource("sql/category.sql"));
         populator.addScript(new ClassPathResource("sql/product.sql"));
+        populator.addScript(new ClassPathResource("sql/product_category.sql"));
         populator.addScript(new ClassPathResource("sql/location.sql"));
         populator.addScript(new ClassPathResource("sql/inventory.sql"));
         populator.addScript(new ClassPathResource("sql/insert_value.sql"));

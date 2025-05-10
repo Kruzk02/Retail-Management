@@ -12,6 +12,8 @@ import org.model.Product;
 import org.service.InventoryService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @Service
 public class InventoryServiceImpl implements InventoryService {
@@ -69,6 +71,7 @@ public class InventoryServiceImpl implements InventoryService {
         inventory.setProduct(product);
         inventory.setLocation(location);
         inventory.setQuantity(request.quantity());
+        inventory.setUpdatedAt(LocalDateTime.now());
 
         return inventoryDao.update(id, inventory);
     }

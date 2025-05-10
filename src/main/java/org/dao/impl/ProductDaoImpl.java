@@ -1,6 +1,7 @@
 package org.dao.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.dao.ProductDao;
 import org.exception.DataNotFoundException;
 import org.model.Category;
@@ -37,7 +38,7 @@ public class ProductDaoImpl implements ProductDao {
     )
     @Override
     public Product save(Product product) {
-        String sql = "INSERT INTO products(name, description, price, stock_quantity) VALUES(?, ?, ?, ?)";
+        String sql = "INSERT INTO products(name, description, price) VALUES(?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         int rowsAffected = jdbcTemplate.update(conn -> {
@@ -49,7 +50,7 @@ public class ProductDaoImpl implements ProductDao {
         }, keyHolder);
 
         if (rowsAffected > 0) {
-            product.setId((Long) Objects.requireNonNull(keyHolder.getKeys()).get("id"));
+            product.setId(((Number) Objects.requireNonNull(keyHolder.getKeys()).get("id")).longValue());
 
             for (Category category : product.getCategories()) {
                 String pcSql = "INSERT INTO products_categories(product_id, category_id) VALUES (?, ?)";
@@ -62,22 +63,45 @@ public class ProductDaoImpl implements ProductDao {
         }
     }
 
-    //Basic thing for now.
     @Override
     public Product findById(Long id) {
-        try {
-            String sql = "SELECT name, description, price, stock_quantity FROM products WHERE id = ?";
-            return jdbcTemplate.queryForObject(sql, (rs, rowNum) ->
-                Product.builder()
-                        .id(id)
-                        .name(rs.getString("name"))
-                        .description(rs.getString("description"))
-                        .price(rs.getBigDecimal("price"))
-                        .build()
-            ,id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new DataNotFoundException("Product not found with a id: " + id);
-        }
+        String sql = "SELECT p.id AS product_id, p.name, p.description, p.price, p.created_at, c.id AS category_id, c.name AS category_name " +
+                "FROM products p " +
+                "JOIN products_categories pc ON pc.product_id = p.id " +
+                "JOIN categories c ON c.id = pc.category_id " +
+                "WHERE p.id = ?";
+        System.out.println("Executing query with ID: " + id);
+        return jdbcTemplate.query(sql, rs ->
+        {
+            Product product = null;
+            List<Category> categories = new ArrayList<>();
+
+            while (rs.next()) {
+
+                Category category = Category.builder()
+                        .id(rs.getLong("category_id"))
+                        .name(rs.getString("category_name"))
+                        .build();
+                categories.add(category);
+
+                if (product == null) {
+                    product = Product.builder()
+                            .id(rs.getLong("product_id"))
+                            .name(rs.getString("name"))
+                            .description(rs.getString("description"))
+                            .price(rs.getBigDecimal("price"))
+                            .created_at(rs.getTimestamp("created_at").toLocalDateTime())
+                            .categories(categories)
+                            .build();
+                }
+            }
+
+            if (product == null) {
+                throw new DataNotFoundException("Product not found with id: " + id);
+            }
+
+            return product;
+        },id);
     }
 
     @Transactional
