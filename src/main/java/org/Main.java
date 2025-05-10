@@ -1,14 +1,20 @@
 package org;
 
 import org.config.AppConfig;
-import org.dto.LoginRequest;
-import org.dto.RegisterRequest;
+import org.dao.CategoryDao;
+import org.dao.InventoryDao;
+import org.dao.LocationDao;
+import org.dao.ProductDao;
 import org.env.DotenvPropertySource;
-import org.model.User;
-import org.service.UserService;
+import org.model.Category;
+import org.model.Inventory;
+import org.model.Location;
+import org.model.Product;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.security.core.Authentication;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -25,11 +31,26 @@ public class Main {
         context.register(AppConfig.class);
         context.refresh();
 
-        UserService userService = context.getBean(UserService.class);
-        User user = userService.register(new RegisterRequest("username", "email@gmail.com", "password"));
-        System.out.println(user);
-        Authentication authentication = userService.login(new LoginRequest("username", "password"));
-        System.out.println(authentication.isAuthenticated());
-        System.out.println(authentication.getAuthorities());
+        var inventoryDao = context.getBean(InventoryDao.class);
+        var productDao = context.getBean(ProductDao.class);
+        var locationDao = context.getBean(LocationDao.class);
+        var categoryDao = context.getBean(CategoryDao.class);
+
+        Location location = locationDao.save(Location.builder().name("location").build());
+        Category category = categoryDao.save(Category.builder().name("category").build());
+
+        Product product = productDao.save(Product.builder()
+                .price(BigDecimal.TWO)
+                .description("description")
+                .name("product")
+                .categories(List.of(category))
+                .build());
+
+        var inventory = inventoryDao.save(Inventory.builder()
+                .product(product)
+                .location(location)
+                .quantity(24)
+                .build());
+        System.out.println(inventory.toString());
     }
 }
