@@ -27,6 +27,7 @@ public class SchemaInitializer implements InitializingBean {
         populator.addScript(new ClassPathResource("sql/location.sql"));
         populator.addScript(new ClassPathResource("sql/inventory.sql"));
         populator.addScript(new ClassPathResource("sql/insert_value.sql"));
+        populator.addScript(new ClassPathResource("sql/supplier.sql"));
         DatabasePopulatorUtils.execute(populator, dataSource);
     }
 }
