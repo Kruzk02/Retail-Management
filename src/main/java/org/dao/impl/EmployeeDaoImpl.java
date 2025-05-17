@@ -1,7 +1,7 @@
 package org.dao.impl;
 
 import lombok.AllArgsConstructor;
-import org.dao.UserDao;
+import org.dao.EmployeeDao;
 import org.exception.DataNotFoundException;
 import org.model.Employee;
 import org.model.Privilege;
@@ -23,7 +23,7 @@ import java.sql.Statement;
 import java.util.*;
 
 @AllArgsConstructor
-public class UserDaoImpl implements UserDao {
+public class EmployeeDaoImpl implements EmployeeDao {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -55,7 +55,7 @@ public class UserDaoImpl implements UserDao {
                         ") AS privileges " +
                     "FROM users u " +
                     "WHERE u.username = ? ";
-            return jdbcTemplate.queryForObject(sql, new UserRowMapper(true, false, true, true, true), username);
+            return jdbcTemplate.queryForObject(sql, new EmployeeRowMapper(true, false, true, true, true), username);
 
         } catch (EmptyResultDataAccessException e) {
             throw new DataNotFoundException("User not found with a username: " + username);
@@ -94,7 +94,7 @@ public class UserDaoImpl implements UserDao {
 }
 
 @AllArgsConstructor
-class UserRowMapper implements RowMapper<Employee> {
+class EmployeeRowMapper implements RowMapper<Employee> {
 
     private boolean includeUsername;
     private boolean includeEmail;

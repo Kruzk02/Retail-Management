@@ -1,6 +1,6 @@
 package org.dao.impl;
 
-import org.dao.UserDao;
+import org.dao.EmployeeDao;
 import org.exception.DataNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,15 +22,15 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class UserDaoImplTest {
+class EmployeeDaoImplTest {
 
     private JdbcTemplate jdbcTemplate;
-    private UserDao userDao;
+    private EmployeeDao employeeDao;
 
     @BeforeEach
     void setup() {
         jdbcTemplate = Mockito.mock(JdbcTemplate.class);
-        userDao = new UserDaoImpl(jdbcTemplate);
+        employeeDao = new EmployeeDaoImpl(jdbcTemplate);
     }
 
     @Test
@@ -40,7 +40,7 @@ class UserDaoImplTest {
 
         when(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(username),eq(email))).thenReturn(true);
 
-        Boolean result = userDao.isUsernameOrEmailExists(username, email);
+        Boolean result = employeeDao.isUsernameOrEmailExists(username, email);
         assertTrue(result);
     }
 
@@ -52,7 +52,7 @@ class UserDaoImplTest {
         when(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class), eq(username), eq(email))).thenReturn(false);
 
 
-        Boolean result = userDao.isUsernameOrEmailExists(username, email);
+        Boolean result = employeeDao.isUsernameOrEmailExists(username, email);
 
         assertFalse(result);
     }
@@ -77,16 +77,16 @@ class UserDaoImplTest {
 
         when(jdbcTemplate.queryForObject(
                 anyString(),
-                any(UserRowMapper.class),
+                any(EmployeeRowMapper.class),
                 eq(username)
         )).thenReturn(expectedEmployee);
 
-        Employee result = userDao.login(username);
+        Employee result = employeeDao.login(username);
 
         assertNotNull(result);
         assertEquals(expectedEmployee, result);
         assertEquals(List.of(role),result.getRoles());
-        verify(jdbcTemplate).queryForObject(anyString(), any(UserRowMapper.class), eq(username));
+        verify(jdbcTemplate).queryForObject(anyString(), any(EmployeeRowMapper.class), eq(username));
     }
 
     @Test
@@ -95,11 +95,11 @@ class UserDaoImplTest {
 
         when(jdbcTemplate.queryForObject(
                 anyString(),
-                any(UserRowMapper.class),
+                any(EmployeeRowMapper.class),
                 eq(username)
         )).thenThrow(new EmptyResultDataAccessException(1));
 
-        Exception exception = assertThrows(DataNotFoundException.class, () -> userDao.login(username));
+        Exception exception = assertThrows(DataNotFoundException.class, () -> employeeDao.login(username));
         assertTrue(exception.getMessage().contains("User not found"));
     }
 
@@ -125,7 +125,7 @@ class UserDaoImplTest {
                     return 1;
                 });
 
-        Employee employee = userDao.register(inputEmployee);
+        Employee employee = employeeDao.register(inputEmployee);
 
         assertNotNull(employee);
         assertEquals(1L, employee.getId());
@@ -144,6 +144,6 @@ class UserDaoImplTest {
         Mockito.when(jdbcTemplate.update(any(PreparedStatementCreator.class), any(KeyHolder.class)))
                 .thenReturn(0);
 
-        assertThrows(IllegalStateException.class, () -> userDao.register(inputEmployee));
+        assertThrows(IllegalStateException.class, () -> employeeDao.register(inputEmployee));
     }
 }
