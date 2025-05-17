@@ -28,4 +28,8 @@ public class DaoConfig {
     @Bean public InventoryDao inventoryDao(JdbcTemplate jdbcTemplate) {
         return new InventoryDaoImpl(jdbcTemplate);
     }
+
+    @Bean public SupplierDao supplierDao(JdbcTemplate jdbcTemplate) {
+        return new SupplierDaoImpl(jdbcTemplate);
+    }
 }
