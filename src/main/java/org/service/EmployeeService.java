@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication;
 /**
  * User service class responsible for user related operations such as registration, login and retrieval
  */
-public interface UserService {
+public interface EmployeeService {
     Employee register(RegisterRequest request);
     Authentication login(LoginRequest request);
 }

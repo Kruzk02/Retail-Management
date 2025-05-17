@@ -2,7 +2,7 @@ package org.service;
 
 import org.junit.jupiter.api.Test;
 import org.model.Role;
-import org.model.User;
+import org.model.Employee;
 import org.service.security.CustomUserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -15,7 +15,7 @@ class CustomUserDetailsTest {
 
     @Test
     void testUsernameAndPassword() {
-        var user = User.builder()
+        var user = Employee.builder()
                 .username("testuser")
                 .password("testpass")
                 .roles(List.of(Role.builder()

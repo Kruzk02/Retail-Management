@@ -1,9 +1,9 @@
 package org.service;
 
-import org.dao.UserDao;
+import org.dao.EmployeeDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.model.User;
+import org.model.Employee;
 import org.service.security.CustomUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,20 +14,20 @@ import static org.mockito.Mockito.when;
 
 class CustomUserDetailsServiceTest {
 
-    private UserDao userDao;
+    private EmployeeDao employeeDao;
     private CustomUserDetailsService customUserDetailsService;
 
     @BeforeEach
     void setUp() {
-        userDao = mock(UserDao.class);
-        customUserDetailsService = new CustomUserDetailsService(userDao);
+        employeeDao = mock(EmployeeDao.class);
+        customUserDetailsService = new CustomUserDetailsService(employeeDao);
     }
 
     @Test
     public void testLoadUserByUsername_UserExists() {
-        User user = User.builder().username("testuser").password("password").build();
+        Employee employee = Employee.builder().username("testuser").password("password").build();
 
-        when(userDao.login("testuser")).thenReturn(user);
+        when(employeeDao.login("testuser")).thenReturn(employee);
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername("testuser");
 
@@ -38,7 +38,7 @@ class CustomUserDetailsServiceTest {
 
     @Test
     public void testLoadUserByUsername_UserNotFound() {
-        when(userDao.login("nonexistent")).thenReturn(null);
+        when(employeeDao.login("nonexistent")).thenReturn(null);
 
         assertThrows(UsernameNotFoundException.class, () -> {
             customUserDetailsService.loadUserByUsername("nonexistent");

@@ -12,8 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ServiceConfig {
 
     @Bean
-    public UserService userService(UserDao userDao, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
-        return new UserServiceImpl(userDao, passwordEncoder, authenticationManager);
+    public EmployeeService employeeService(EmployeeDao employeeDao, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+        return new EmployeeServiceImpl(employeeDao, passwordEncoder, authenticationManager);
     }
 
     @Bean

@@ -1,12 +1,12 @@
 package org.service.impl;
 
 import lombok.AllArgsConstructor;
-import org.dao.UserDao;
+import org.dao.EmployeeDao;
 import org.dto.LoginRequest;
 import org.dto.RegisterRequest;
 import org.exception.UsernameOrEmailAlreadyExistsException;
 import org.model.Employee;
-import org.service.UserService;
+import org.service.EmployeeService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -22,9 +22,9 @@ import org.springframework.stereotype.Service;
  */
 @AllArgsConstructor
 @Service
-public class UserServiceImpl implements UserService {
+public class EmployeeServiceImpl implements EmployeeService {
 
-    private final UserDao userDao;
+    private final EmployeeDao employeeDao;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
@@ -36,13 +36,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public Employee register(RegisterRequest request) {
 
-        boolean isExists = userDao.isUsernameOrEmailExists(request.username(), request.email());
+        boolean isExists = employeeDao.isUsernameOrEmailExists(request.username(), request.email());
         if (isExists) {
             throw new UsernameOrEmailAlreadyExistsException("Username or Email already existing.");
         }
 
         String hashedPassword = passwordEncoder.encode(request.password());
-        return userDao.register(Employee.builder()
+        return employeeDao.register(Employee.builder()
             .username(request.username())
             .email(request.email())
             .password(hashedPassword)

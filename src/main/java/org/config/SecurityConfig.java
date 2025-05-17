@@ -1,7 +1,7 @@
 package org.config;
 
 
-import org.dao.UserDao;
+import org.dao.EmployeeDao;
 import org.service.security.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,8 +25,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(UserDao userDao) {
-        return new CustomUserDetailsService(userDao);
+    public UserDetailsService userDetailsService(EmployeeDao employeeDao) {
+        return new CustomUserDetailsService(employeeDao);
     }
 
     @Bean public AuthenticationManager authenticationManager(DaoAuthenticationProvider authenticationProvider) {
