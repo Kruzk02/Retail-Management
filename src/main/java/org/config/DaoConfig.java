@@ -9,8 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @Configuration
 public class DaoConfig {
 
-    @Bean public UserDao userDao(JdbcTemplate jdbcTemplate) {
-        return new UserDaoImpl(jdbcTemplate);
+    @Bean public EmployeeDao employeeDao(JdbcTemplate jdbcTemplate) {
+        return new EmployeeDaoImpl(jdbcTemplate);
     }
 
     @Bean public CategoryDao categoryDao(JdbcTemplate jdbcTemplate) {

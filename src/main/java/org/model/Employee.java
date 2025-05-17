@@ -12,7 +12,7 @@ import java.util.Collection;
 @AllArgsConstructor
 @Data
 @Builder
-public class User {
+public class Employee {
 
     private Long id;
     private String username;

@@ -2,7 +2,7 @@ package org.service.security;
 
 import org.model.Privilege;
 import org.model.Role;
-import org.model.User;
+import org.model.Employee;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,21 +11,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public record CustomUserDetails(User user) implements UserDetails {
+public record CustomUserDetails(Employee employee) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getGrantedAuthorities(getPrivileges(user.getRoles()));
+        return getGrantedAuthorities(getPrivileges(employee.getRoles()));
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return employee.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return employee.getUsername();
     }
 
     private List<String> getPrivileges(Collection<Role> roles) {
