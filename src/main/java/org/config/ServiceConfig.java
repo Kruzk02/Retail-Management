@@ -35,4 +35,9 @@ public class ServiceConfig {
     public InventoryService inventoryService(InventoryDao inventoryDao, ProductDao productDao, LocationDao locationDao) {
         return new InventoryServiceImpl(inventoryDao, productDao, locationDao);
     }
+
+    @Bean
+    public SupplierService supplierService(SupplierDao supplierDao) {
+        return new SupplierServiceImpl(supplierDao);
+    }
 }
