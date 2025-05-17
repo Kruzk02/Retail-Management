@@ -5,7 +5,7 @@ import org.dao.UserDao;
 import org.dto.LoginRequest;
 import org.dto.RegisterRequest;
 import org.exception.UsernameOrEmailAlreadyExistsException;
-import org.model.User;
+import org.model.Employee;
 import org.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
      * @return The registered User entity.
      */
     @Override
-    public User register(RegisterRequest request) {
+    public Employee register(RegisterRequest request) {
 
         boolean isExists = userDao.isUsernameOrEmailExists(request.username(), request.email());
         if (isExists) {
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
         }
 
         String hashedPassword = passwordEncoder.encode(request.password());
-        return userDao.register(User.builder()
+        return userDao.register(Employee.builder()
             .username(request.username())
             .email(request.email())
             .password(hashedPassword)

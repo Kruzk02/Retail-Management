@@ -3,9 +3,9 @@ package org.dao.impl;
 import lombok.AllArgsConstructor;
 import org.dao.UserDao;
 import org.exception.DataNotFoundException;
+import org.model.Employee;
 import org.model.Privilege;
 import org.model.Role;
-import org.model.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,7 +34,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User login(String username) {
+    public Employee login(String username) {
         try {
             String sql = "SELECT " +
                     "u.id AS user_id, " +
@@ -66,27 +66,27 @@ public class UserDaoImpl implements UserDao {
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     @Override
-    public User register(User user) {
+    public Employee register(Employee employee) {
         String sql = "INSERT INTO users(username, email, password) VALUES(?, ? ,?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         int rowAffected = jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, user.getUsername());
-            ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPassword());
+            ps.setString(1, employee.getUsername());
+            ps.setString(2, employee.getEmail());
+            ps.setString(3, employee.getPassword());
             return ps;
         }, keyHolder);
 
         if (rowAffected > 0) {
-            user.setId(((Number) Objects.requireNonNull(keyHolder.getKeys()).get("id")).longValue());
+            employee.setId(((Number) Objects.requireNonNull(keyHolder.getKeys()).get("id")).longValue());
 
             String userRoleSql = "INSERT INTO users_roles(user_id, role_id) VALUES(?, ?)";
             jdbcTemplate.update(userRoleSql, ps -> {
-                ps.setLong(1, user.getId());
+                ps.setLong(1, employee.getId());
                 ps.setInt(2, 2);
             });
-            return user;
+            return employee;
         } else {
             throw new IllegalStateException("Failed to insert user into database");
         }
@@ -94,7 +94,7 @@ public class UserDaoImpl implements UserDao {
 }
 
 @AllArgsConstructor
-class UserRowMapper implements RowMapper<User> {
+class UserRowMapper implements RowMapper<Employee> {
 
     private boolean includeUsername;
     private boolean includeEmail;
@@ -103,22 +103,22 @@ class UserRowMapper implements RowMapper<User> {
     private boolean includePrivilege;
 
     @Override
-    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-        User user = User.builder()
+    public Employee mapRow(ResultSet rs, int rowNum) throws SQLException {
+        Employee employee = Employee.builder()
                 .id(rs.getLong("user_id"))
                 .roles(new ArrayList<>())
                 .build();
 
         if (includeUsername) {
-            user.setUsername(rs.getString("username"));
+            employee.setUsername(rs.getString("username"));
         }
 
         if (includeEmail) {
-            user.setEmail(rs.getString("email"));
+            employee.setEmail(rs.getString("email"));
         }
 
         if (includePassword) {
-            user.setPassword(rs.getString("password"));
+            employee.setPassword(rs.getString("password"));
         }
 
         if (includeRole) {
@@ -126,7 +126,7 @@ class UserRowMapper implements RowMapper<User> {
                     .name(rs.getString("roles"))
                     .privileges(new ArrayList<>())
                     .build();
-            user.getRoles().add(role);
+            employee.getRoles().add(role);
 
             if (includePrivilege) {
                 String privilegeName = rs.getString("privileges");
@@ -141,7 +141,7 @@ class UserRowMapper implements RowMapper<User> {
             }
         }
 
-        user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-        return user;
+        employee.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+        return employee;
     }
 }

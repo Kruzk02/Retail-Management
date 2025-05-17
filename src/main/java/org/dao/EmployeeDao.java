@@ -1,10 +1,10 @@
 package org.dao;
 
-import org.model.User;
+import org.model.Employee;
 
 public interface UserDao {
     //TODO: add more after setup security
     Boolean isUsernameOrEmailExists(String username, String email);
-    User login(String username);
-    User register(User user);
+    Employee login(String username);
+    Employee register(Employee employee);
 }

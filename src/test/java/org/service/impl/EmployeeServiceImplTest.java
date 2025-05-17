@@ -7,7 +7,7 @@ import org.exception.UsernameOrEmailAlreadyExistsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.model.User;
+import org.model.Employee;
 import org.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -43,21 +43,21 @@ class UserServiceImplTest {
         when(userDao.isUsernameOrEmailExists(request.username(), request.email())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn("hashedPassword");
 
-        User expectedUser = User.builder()
+        Employee expectedEmployee = Employee.builder()
                 .username("test1234")
                 .email("test@gmail.com")
                 .password("hashedPassword")
                 .build();
 
-        when(userDao.register(any(User.class))).thenReturn(expectedUser);
+        when(userDao.register(any(Employee.class))).thenReturn(expectedEmployee);
 
-        User result = userService.register(request);
+        Employee result = userService.register(request);
 
-        assertEquals(expectedUser, result);
+        assertEquals(expectedEmployee, result);
 
         verify(userDao).isUsernameOrEmailExists("test1234", "test@gmail.com");
         verify(passwordEncoder).encode("password");
-        verify(userDao).register(any(User.class));
+        verify(userDao).register(any(Employee.class));
     }
 
     @Test
