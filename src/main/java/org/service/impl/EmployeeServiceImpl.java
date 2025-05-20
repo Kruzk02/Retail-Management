@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.dao.EmployeeDao;
 import org.dto.LoginRequest;
 import org.dto.RegisterRequest;
+import org.exception.InvalidValidatorException;
 import org.exception.UsernameOrEmailAlreadyExistsException;
 import org.model.Employee;
 import org.service.EmployeeService;
@@ -15,6 +16,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.ObjectError;
+import org.validators.RegisterRequestValidator;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * User service class responsible for user related operations such as registration, login and retrieval <p>
@@ -27,6 +34,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeDao employeeDao;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final RegisterRequestValidator registerRequestValidator;
 
     /**
      * Register a new user based on the provided RegisterRequest.<p>
@@ -35,9 +43,17 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     @Override
     public Employee register(RegisterRequest request) {
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(request, "registerRequest");
+        registerRequestValidator.validate(request, errors);
 
-        boolean isExists = employeeDao.isUsernameOrEmailExists(request.username(), request.email());
-        if (isExists) {
+        if (errors.hasErrors()) {
+            List<String> errorMessages = errors.getAllErrors().stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            throw new InvalidValidatorException(errorMessages);
+        }
+
+        if (employeeDao.isUsernameOrEmailExists(request.username(), request.email())) {
             throw new UsernameOrEmailAlreadyExistsException("Username or Email already existing.");
         }
 
