@@ -5,6 +5,7 @@ import org.dao.CategoryDao;
 import org.dao.InventoryDao;
 import org.dao.LocationDao;
 import org.dao.ProductDao;
+import org.dto.LoginRequest;
 import org.dto.RegisterRequest;
 import org.env.DotenvPropertySource;
 import org.exception.InvalidValidatorException;
@@ -35,11 +36,11 @@ public class Main {
         context.refresh();
 
         EmployeeService employeeService = context.getBean(EmployeeService.class);
-        var request = new RegisterRequest("user", "email", "pass");
+        var request = new LoginRequest("", "");
         try {
-            System.out.println(employeeService.register(request));
+            System.out.println(employeeService.login(request));
         } catch (InvalidValidatorException e) {
-            System.out.println(e.getAllMessage().getFirst());
+            e.getAllMessage().iterator().forEachRemaining(System.out::println);
         }
     }
 }

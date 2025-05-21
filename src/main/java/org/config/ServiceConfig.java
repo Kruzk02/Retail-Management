@@ -7,14 +7,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.validators.LoginRequestValidator;
 import org.validators.RegisterRequestValidator;
 
 @Configuration
 public class ServiceConfig {
 
     @Bean
-    public EmployeeService employeeService(EmployeeDao employeeDao, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RegisterRequestValidator registerRequestValidator) {
-        return new EmployeeServiceImpl(employeeDao, passwordEncoder, authenticationManager, registerRequestValidator);
+    public EmployeeService employeeService(EmployeeDao employeeDao, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RegisterRequestValidator registerRequestValidator, LoginRequestValidator loginRequestValidator) {
+        return new EmployeeServiceImpl(employeeDao, passwordEncoder, authenticationManager, registerRequestValidator, loginRequestValidator);
     }
 
     @Bean
