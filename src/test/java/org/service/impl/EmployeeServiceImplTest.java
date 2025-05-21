@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.Errors;
+import org.validators.LoginRequestValidator;
 import org.validators.RegisterRequestValidator;
 
 import java.util.List;
@@ -32,6 +33,7 @@ class EmployeeServiceImplTest {
     private PasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
     private RegisterRequestValidator registerRequestValidator;
+    private LoginRequestValidator loginRequestValidator;
     private EmployeeService employeeService;
 
     @BeforeEach
@@ -40,7 +42,8 @@ class EmployeeServiceImplTest {
         passwordEncoder = Mockito.mock(PasswordEncoder.class);
         authenticationManager = Mockito.mock(AuthenticationManager.class);
         registerRequestValidator = Mockito.mock(RegisterRequestValidator.class);
-        employeeService = new EmployeeServiceImpl(employeeDao, passwordEncoder, authenticationManager, registerRequestValidator);
+        loginRequestValidator = Mockito.mock(LoginRequestValidator.class);
+        employeeService = new EmployeeServiceImpl(employeeDao, passwordEncoder, authenticationManager, registerRequestValidator, loginRequestValidator);
     }
 
     @Test
@@ -69,7 +72,7 @@ class EmployeeServiceImplTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenValidationFails() {
+    void register_shouldThrowExceptionWhenValidationFails() {
         RegisterRequest request = new RegisterRequest("", "", "");
 
         doAnswer(invocation -> {
@@ -126,5 +129,24 @@ class EmployeeServiceImplTest {
 
         BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> employeeService.login(request));
         assertEquals("Invalid username or password", exception.getMessage());
+    }
+
+    @Test
+    void login_shouldThrowExceptionWhenValidationFails() {
+        LoginRequest request = new LoginRequest("", "");
+
+        doAnswer(invocation -> {
+            Errors errors = invocation.getArgument(1);
+            errors.rejectValue("username", "invalid", "Username should not be empty");
+            errors.rejectValue( "password", "invalid", "Password should not be empty");
+            return null;
+        }).when(loginRequestValidator).validate(eq(request), any(Errors.class));
+
+        InvalidValidatorException exception = assertThrows(InvalidValidatorException.class,
+                () -> employeeService.login(request));
+
+        List<String> message = exception.getAllMessage();
+        assertEquals("Username should not be empty", message.getFirst());
+        assertEquals("Password should not be empty", message.getLast());
     }
 }

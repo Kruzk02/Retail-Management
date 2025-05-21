@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
+import org.validators.LoginRequestValidator;
 import org.validators.RegisterRequestValidator;
 
 import java.util.List;
@@ -35,6 +36,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final RegisterRequestValidator registerRequestValidator;
+    private final LoginRequestValidator loginRequestValidator;
+
+    private void validationDTO(BeanPropertyBindingResult errors) {
+        if (errors.hasErrors()) {
+            List<String> errorMessages = errors.getAllErrors().stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            throw new InvalidValidatorException(errorMessages);
+        }
+    }
 
     /**
      * Register a new user based on the provided RegisterRequest.<p>
@@ -46,12 +57,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(request, "registerRequest");
         registerRequestValidator.validate(request, errors);
 
-        if (errors.hasErrors()) {
-            List<String> errorMessages = errors.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-            throw new InvalidValidatorException(errorMessages);
-        }
+        validationDTO(errors);
 
         if (employeeDao.isUsernameOrEmailExists(request.username(), request.email())) {
             throw new UsernameOrEmailAlreadyExistsException("Username or Email already existing.");
@@ -74,6 +80,11 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     @Override
     public Authentication login(LoginRequest request) {
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(request, "loginRequest");
+        loginRequestValidator.validate(request, errors);
+
+        validationDTO(errors);
+
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
