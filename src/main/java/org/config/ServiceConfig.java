@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.validators.LoginRequestValidator;
+import org.validators.ProductRequestValidator;
 import org.validators.RegisterRequestValidator;
 
 @Configuration
@@ -24,8 +25,8 @@ public class ServiceConfig {
     }
 
     @Bean
-    public ProductService productService(ProductDao productDao, CategoryDao categoryDao) {
-        return new ProductServiceImpl(productDao, categoryDao);
+    public ProductService productService(ProductDao productDao, CategoryDao categoryDao, ProductRequestValidator productRequestValidator) {
+        return new ProductServiceImpl(productDao, categoryDao, productRequestValidator);
     }
 
     @Bean
