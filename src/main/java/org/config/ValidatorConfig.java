@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.validators.LoginRequestValidator;
 import org.validators.ProductRequestValidator;
 import org.validators.RegisterRequestValidator;
+import org.validators.SupplierRequestValidator;
 
 @Configuration
 public class ValidatorConfig {
@@ -22,5 +23,10 @@ public class ValidatorConfig {
     @Bean
     public ProductRequestValidator productRequestValidator() {
         return new ProductRequestValidator();
+    }
+
+    @Bean
+    public SupplierRequestValidator supplierRequestValidator() {
+        return new SupplierRequestValidator();
     }
 }

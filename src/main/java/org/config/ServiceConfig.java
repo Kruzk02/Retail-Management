@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.validators.LoginRequestValidator;
 import org.validators.ProductRequestValidator;
 import org.validators.RegisterRequestValidator;
+import org.validators.SupplierRequestValidator;
 
 @Configuration
 public class ServiceConfig {
@@ -40,7 +41,7 @@ public class ServiceConfig {
     }
 
     @Bean
-    public SupplierService supplierService(SupplierDao supplierDao) {
-        return new SupplierServiceImpl(supplierDao);
+    public SupplierService supplierService(SupplierDao supplierDao, SupplierRequestValidator supplierRequestValidator) {
+        return new SupplierServiceImpl(supplierDao, supplierRequestValidator);
     }
 }
