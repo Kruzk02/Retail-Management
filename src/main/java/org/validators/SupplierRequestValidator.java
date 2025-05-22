@@ -15,7 +15,7 @@ public class SupplierRequestValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         ValidationUtils.rejectIfEmpty(errors, "name", "name.empty", "Supplier name must not be empty");
-        ValidationUtils.rejectIfEmpty(errors, "contact", "contact.empty", "Contact must not be empty");
+        ValidationUtils.rejectIfEmpty(errors, "contactName", "contact.empty", "Contact must not be empty");
         ValidationUtils.rejectIfEmpty(errors, "phoneNumber", "phoneNumber.empty", "Phone number must not be empty");
         ValidationUtils.rejectIfEmpty(errors, "email", "email.empty", "Email must not be empty");
         ValidationUtils.rejectIfEmpty(errors, "address", "address.empty", "Address must not be empty");
