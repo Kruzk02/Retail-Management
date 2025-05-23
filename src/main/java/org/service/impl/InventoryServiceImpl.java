@@ -6,13 +6,19 @@ import org.dao.LocationDao;
 import org.dao.ProductDao;
 import org.dto.InventoryRequest;
 import org.exception.DataNotFoundException;
+import org.exception.InvalidValidatorException;
 import org.model.Inventory;
 import org.model.Location;
 import org.model.Product;
 import org.service.InventoryService;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.ObjectError;
+import org.validators.InventoryRequestValidator;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -21,9 +27,23 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryDao inventoryDao;
     private final ProductDao productDao;
     private final LocationDao locationDao;
+    private final InventoryRequestValidator inventoryRequestValidator;
 
+    private void validationDTO(InventoryRequest request) {
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(request, "inventoryRequest");
+        inventoryRequestValidator.validate(request, errors);
+
+        if (errors.hasErrors()) {
+            List<String> errorMessages = errors.getAllErrors().stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            throw new InvalidValidatorException(errorMessages);
+        }
+    }
     @Override
     public Inventory save(InventoryRequest request) {
+        validationDTO(request);
+
         Boolean isProductExists = productDao.isProductExists(request.productId());
         if (!isProductExists) {
             throw new DataNotFoundException("Product not found with a id: " + request.productId());
@@ -48,6 +68,8 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public Inventory update(Long id, InventoryRequest request) {
+        validationDTO(request);
+
         Boolean isProductExists = productDao.isProductExists(request.productId());
         if (!isProductExists) {
             throw new DataNotFoundException("Product not found with a id: " + request.productId());
