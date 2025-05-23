@@ -4,6 +4,7 @@ import org.dao.CategoryDao;
 import org.dao.ProductDao;
 import org.dto.ProductRequest;
 import org.exception.DataNotFoundException;
+import org.exception.InvalidValidatorException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -11,22 +12,23 @@ import org.model.Category;
 import org.model.Product;
 import org.service.ProductService;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.validation.Errors;
+import org.validators.ProductRequestValidator;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 class ProductServiceImplTest {
 
     private ProductDao productDao;
     private CategoryDao categoryDao;
+    private ProductRequestValidator productRequestValidator;
     private ProductService productService;
 
     private Product product;
@@ -38,7 +40,8 @@ class ProductServiceImplTest {
     void setUp() {
         productDao = Mockito.mock(ProductDao.class);
         categoryDao = Mockito.mock(CategoryDao.class);
-        productService = new ProductServiceImpl(productDao, categoryDao);
+        productRequestValidator = Mockito.mock(ProductRequestValidator.class);
+        productService = new ProductServiceImpl(productDao, categoryDao, productRequestValidator);
 
         category = Category.builder().name("name").build();
         product = Product.builder()
@@ -67,8 +70,24 @@ class ProductServiceImplTest {
     }
 
     @Test
-    void testSave_shouldThrowException() { // I don't know what to need test here
+    void testSave_shouldThrowExceptionWhenValidationFails() {
+        doAnswer(invocation -> {
+            Errors errors = invocation.getArgument(1);
+            errors.rejectValue("name", "invalid", "Product name must not be empty");
+            errors.rejectValue( "description", "invalid", "Product description must not be empty");
+            errors.rejectValue( "categories", "invalid", "Categories must not be empty");
+            errors.rejectValue( "price", "invalid", "Price must not be empty");
+            return null;
+        }).when(productRequestValidator).validate(eq(productRequest), any(Errors.class));
 
+        InvalidValidatorException exception = assertThrows(InvalidValidatorException.class,
+                () -> productService.save(productRequest));
+
+        List<String> message = exception.getAllMessage();
+        assertEquals("Product name must not be empty", message.getFirst());
+        assertEquals("Product description must not be empty", message.get(1));
+        assertEquals("Categories must not be empty", message.get(2));
+        assertEquals("Price must not be empty", message.getLast());
     }
 
     @Test
@@ -112,6 +131,26 @@ class ProductServiceImplTest {
         assertTrue(ex.getMessage().contains("Product not found"));
     }
 
+    @Test
+    void testUpdate_shouldThrowExceptionWhenValidationFails() {
+        doAnswer(invocation -> {
+            Errors errors = invocation.getArgument(1);
+            errors.rejectValue("name", "invalid", "Product name must not be empty");
+            errors.rejectValue( "description", "invalid", "Product description must not be empty");
+            errors.rejectValue( "categories", "invalid", "Categories must not be empty");
+            errors.rejectValue( "price", "invalid", "Price must not be empty");
+            return null;
+        }).when(productRequestValidator).validate(eq(productRequest), any(Errors.class));
+
+        InvalidValidatorException exception = assertThrows(InvalidValidatorException.class,
+                () -> productService.update(1L, productRequest));
+
+        List<String> message = exception.getAllMessage();
+        assertEquals("Product name must not be empty", message.getFirst());
+        assertEquals("Product description must not be empty", message.get(1));
+        assertEquals("Categories must not be empty", message.get(2));
+        assertEquals("Price must not be empty", message.getLast());
+    }
 
     @Test
     void testDeleteById_shouldSuccess() {

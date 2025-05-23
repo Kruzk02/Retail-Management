@@ -7,13 +7,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.validators.*;
 
 @Configuration
 public class ServiceConfig {
 
     @Bean
-    public EmployeeService employeeService(EmployeeDao employeeDao, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
-        return new EmployeeServiceImpl(employeeDao, passwordEncoder, authenticationManager);
+    public EmployeeService employeeService(EmployeeDao employeeDao, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RegisterRequestValidator registerRequestValidator, LoginRequestValidator loginRequestValidator) {
+        return new EmployeeServiceImpl(employeeDao, passwordEncoder, authenticationManager, registerRequestValidator, loginRequestValidator);
     }
 
     @Bean
@@ -22,8 +23,8 @@ public class ServiceConfig {
     }
 
     @Bean
-    public ProductService productService(ProductDao productDao, CategoryDao categoryDao) {
-        return new ProductServiceImpl(productDao, categoryDao);
+    public ProductService productService(ProductDao productDao, CategoryDao categoryDao, ProductRequestValidator productRequestValidator) {
+        return new ProductServiceImpl(productDao, categoryDao, productRequestValidator);
     }
 
     @Bean
@@ -32,12 +33,12 @@ public class ServiceConfig {
     }
 
     @Bean
-    public InventoryService inventoryService(InventoryDao inventoryDao, ProductDao productDao, LocationDao locationDao) {
-        return new InventoryServiceImpl(inventoryDao, productDao, locationDao);
+    public InventoryService inventoryService(InventoryDao inventoryDao, ProductDao productDao, LocationDao locationDao, InventoryRequestValidator inventoryRequestValidator) {
+        return new InventoryServiceImpl(inventoryDao, productDao, locationDao, inventoryRequestValidator);
     }
 
     @Bean
-    public SupplierService supplierService(SupplierDao supplierDao) {
-        return new SupplierServiceImpl(supplierDao);
+    public SupplierService supplierService(SupplierDao supplierDao, SupplierRequestValidator supplierRequestValidator) {
+        return new SupplierServiceImpl(supplierDao, supplierRequestValidator);
     }
 }

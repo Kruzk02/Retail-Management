@@ -5,6 +5,7 @@ import org.dao.LocationDao;
 import org.dao.ProductDao;
 import org.dto.InventoryRequest;
 import org.exception.DataNotFoundException;
+import org.exception.InvalidValidatorException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -13,6 +14,8 @@ import org.model.Location;
 import org.model.Product;
 import org.service.InventoryService;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.validation.Errors;
+import org.validators.InventoryRequestValidator;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -21,14 +24,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 class InventoryServiceImplTest {
 
     private ProductDao productDao;
     private LocationDao locationDao;
     private InventoryDao inventoryDao;
+    private InventoryRequestValidator inventoryRequestValidator;
 
     private InventoryService inventoryService;
 
@@ -41,8 +46,8 @@ class InventoryServiceImplTest {
         productDao = Mockito.mock(ProductDao.class);
         locationDao = Mockito.mock(LocationDao.class);
         inventoryDao = Mockito.mock(InventoryDao.class);
-
-        inventoryService = new InventoryServiceImpl(inventoryDao, productDao, locationDao);
+        inventoryRequestValidator = Mockito.mock(InventoryRequestValidator.class);
+        inventoryService = new InventoryServiceImpl(inventoryDao, productDao, locationDao, inventoryRequestValidator);
 
         product = Product.builder()
                 .id(1L)
@@ -87,6 +92,24 @@ class InventoryServiceImplTest {
 
         Exception exception = assertThrows(DataNotFoundException.class, () -> inventoryService.save(new InventoryRequest(inventory.getProduct().getId(), inventory.getLocation().getId(), inventory.getQuantity())));
         assertTrue(exception.getMessage().contains("not found"));
+    }
+
+    @Test
+    void testSave_shouldThrowExceptionWhenValidationFails() {
+        InventoryRequest request = new InventoryRequest(inventory.getProduct().getId(), inventory.getLocation().getId(), inventory.getQuantity());
+        doAnswer(invocation -> {
+            Errors errors = invocation.getArgument(1);
+            errors.rejectValue("productId", "invalid", "Product id must not be empty");
+            errors.rejectValue( "locationId", "invalid", "Location id must not be empty");
+            return null;
+        }).when(inventoryRequestValidator).validate(eq(request), any(Errors.class));
+
+        InvalidValidatorException exception = assertThrows(InvalidValidatorException.class,
+                () -> inventoryService.save(request));
+
+        List<String> message = exception.getAllMessage();
+        assertEquals("Product id must not be empty", message.getFirst());
+        assertEquals("Location id must not be empty", message.getLast());
     }
 
     @Test
