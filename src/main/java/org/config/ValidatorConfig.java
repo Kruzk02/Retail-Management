@@ -2,10 +2,7 @@ package org.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.validators.LoginRequestValidator;
-import org.validators.ProductRequestValidator;
-import org.validators.RegisterRequestValidator;
-import org.validators.SupplierRequestValidator;
+import org.validators.*;
 
 @Configuration
 public class ValidatorConfig {
@@ -28,5 +25,10 @@ public class ValidatorConfig {
     @Bean
     public SupplierRequestValidator supplierRequestValidator() {
         return new SupplierRequestValidator();
+    }
+
+    @Bean
+    public InventoryRequestValidator inventoryRequestValidator() {
+        return new InventoryRequestValidator();
     }
 }

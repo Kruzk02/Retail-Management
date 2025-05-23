@@ -7,10 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.validators.LoginRequestValidator;
-import org.validators.ProductRequestValidator;
-import org.validators.RegisterRequestValidator;
-import org.validators.SupplierRequestValidator;
+import org.validators.*;
 
 @Configuration
 public class ServiceConfig {
@@ -36,8 +33,8 @@ public class ServiceConfig {
     }
 
     @Bean
-    public InventoryService inventoryService(InventoryDao inventoryDao, ProductDao productDao, LocationDao locationDao) {
-        return new InventoryServiceImpl(inventoryDao, productDao, locationDao);
+    public InventoryService inventoryService(InventoryDao inventoryDao, ProductDao productDao, LocationDao locationDao, InventoryRequestValidator inventoryRequestValidator) {
+        return new InventoryServiceImpl(inventoryDao, productDao, locationDao, inventoryRequestValidator);
     }
 
     @Bean
